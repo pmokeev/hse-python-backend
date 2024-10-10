@@ -80,8 +80,6 @@ async def test_register_user(
 ):
     response = await client.post("/user-register", json=request_body)
 
-    print(response)
-
     assert response.status_code == status_code
     data = response.json()
 
