@@ -1,9 +1,37 @@
 import http from "k6/http";
+import { check } from 'k6';
+import exec from 'k6/execution';
 
 export const options = {
-  stages: [{ duration: "10s", target: 1 }],
+  scenarios: {
+    constant_request_rate: {
+      executor: 'ramping-arrival-rate',
+      preAllocatedVUs: 50,
+      timeUnit: '1s',
+      startRate: 50,
+      stages: [
+        { target: 200, duration: '5m' }, // linearly go from 50 iters/s to 200 iters/s for 3m
+        { target: 500, duration: '0' }, // instantly jump to 500 iters/s
+        { target: 500, duration: '5m' }, // continue with 500 iters/s for 3 minutes
+      ],
+    },
+  },
 };
 
 export default function () {
-  http.get("http://localhost:8000/item/1");
+  const uid = `${exec.scenario.iterationInTest}`
+
+  let body = {
+    username: String(uid),
+    name: String(uid),
+    birthdate: "2024-10-09T00:00:00",
+    password: "password123"
+  };
+
+  let res = http.post("http://localhost:8000/user-register", JSON.stringify(body));
+
+  check(res, {
+    'status is 200': (r) => r.status === 200,
+    'is correct username': (r) => r.json().username === String(uid),
+  });
 }
