@@ -13,4 +13,4 @@ COPY ./ ./
 # Вытаскиваем наружу 8000 порт
 EXPOSE 8000
 # Запускаем сервер
-CMD [ "poetry", "run", "uvicorn", "lecture_2.hw.shop_api.main:app" ]
+CMD [ "poetry", "run", "uvicorn", "lecture_4.demo_service.api.main:create_app" ]
